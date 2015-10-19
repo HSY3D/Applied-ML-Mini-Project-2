@@ -43,7 +43,28 @@ def entropy(predictions, total):
 
 def informationGain(feature, prediction):
     #null
+    return 0
 
+def getThresholds(max_val):
+    percentages = [0.2, 0.4, 0.6, 0.8]
+    thresholds = []
+    for p in percentages:
+        thresholds.append(max_val*p)
+    return thresholds
+#    nodes1 = []
+#    nodes2 = []
+#    nodes3 = []
+#    nodes0 = []
+#    for key, value in attr_children.iteritems():
+#        i = value[1]
+#        if i == 0:
+#            nodes0.append(i)
+#        elif i == 1:
+#            nodes1.append(i)
+#        elif i == 2:
+#            nodes2.append(i)
+#        elif i == 3:
+#            nodes3.append(i)
     
     
 main()

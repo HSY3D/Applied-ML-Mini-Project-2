@@ -33,7 +33,7 @@ def main():
     X_train_array = X_train_tfidf.toarray()
 #    print getFreqDist(removeStopWordsAndPunct(x_train))
     zero, one, two, three = getTrainingExampleFrequency(x_train, y_train)
-    getFreqDist(removeStopWordsAndPunct(zero))
+#    getFreqDist(removeStopWordsAndPunct(zero))
 #    getFreqDist(removeStopWordsAndPunct(one))
 #    getFreqDist(removeStopWordsAndPunct(two))
 #    getFreqDist(removeStopWordsAndPunct(three))
@@ -68,7 +68,7 @@ def main():
     parent_ent = entropy(predictions, total)
     print parent_ent
     ig_things = []
-    ig_things.append(getInformationGain(34567, X_train_array, y_train, parent_ent))
+    ig_things.append(getInformationGain(39225, X_train_array, y_train, parent_ent))
           
 '''
 ******************* HELPER FUNCTIONS *******************
@@ -78,6 +78,28 @@ def main():
 #get the nodes of the feature
 #calculate their entropy individually
 #calculate the information gain
+
+def id3(examples, target_attr, attr):
+    #Create roote node for the tree
+    #if all the values in the data set are a single class, then return that class
+    if len(examples[1]) == 0 and len(examples[2]) == 0 and len(examples[3]) == 0:
+        return 0
+    elif len(examples[0]) == 0 and len(examples[2]) == 0 and len(examples[3]) == 0:
+        return 1
+    elif len(examples[0]) == 0 and len(examples[1]) == 0 and len(examples[3]) == 0:
+        return 2
+    elif len(examples[0]) == 0 and len(examples[1]) == 0 and len(examples[2]) == 0:
+        return 3
+    else:
+        #Choose the next best attribute to best classify our data
+        best = choose_attr(examples, target_attr, attr)
+        #Create a new decision tree/node with best attr and an empty dict object
+        tree = {best:{}}
+        #Create a new dec tree/sub-node for each of the values in the best attribute field
+        for val in get_values(data,best):
+            #Create a subtree for the current value under the "best" field
+            subtree = id3(get_examples(data, best, val))
+        
 
 def getInformationGain(feature_num, x_data, y_vector, parent_entropy):
     attr_children = {}
@@ -93,20 +115,24 @@ def getInformationGain(feature_num, x_data, y_vector, parent_entropy):
             attr_children[exp_str] = [tmp,y_vector[i]]
             max_list.append(tmp)
     max_value = max(max_list)
-    thresholds = getThresholds(max_value)
+#    print attr_children
+    thresholds = getThresholds(attr_children)
+#    sort(thresholds)
+    print thresholds
     for key, value in attr_children.iteritems():
         i = value[0]
-        if i <= thresholds[0]:
+        if abs(i-thresholds[0]) <= 0.005 and i <= thresholds[0]:
             nodes0.append(i)
-        elif i <= thresholds[1]:
+        elif abs(i-thresholds[1]) <= 0.005 and i <= thresholds[1]:
             nodes1.append(i)
-        elif i <= thresholds[2]:
+        elif abs(i-thresholds[2]) <= 0.005 and i <= thresholds[2]:
             nodes2.append(i)
-        elif i <= thresholds[3]:
+        elif abs(i-thresholds[3]) <= 0.005 and i <= thresholds[3]:
             nodes3.append(i)
     total_count = len(attr_children)
     entropy_values = [entropy(nodes0, total_count), entropy(nodes1, total_count), entropy(nodes2, total_count), entropy(nodes3, total_count)] 
-    nodes_counts = [len(nodes0),len(nodes1),len(nodes2),len(nodes3)]    
+    nodes_counts = [len(nodes0),len(nodes1),len(nodes2),len(nodes3)]
+    print nodes_counts    
     print entropy_values
     ig_sum = 0
     node_num = 0
@@ -117,27 +143,58 @@ def getInformationGain(feature_num, x_data, y_vector, parent_entropy):
     return parent_entropy - ig_sum
         
 #each frequency is the frequency of each word in each class   
-def getThresholds(max_val):
-    percentages = [0.2, 0.4, 0.6, 0.8]
+def getThresholds(attr_children):
     thresholds = []
-    for p in percentages:
-        thresholds.append(max_val*p)
+    nodes0 = []    
+    nodes1 = []
+    nodes2 = []
+    nodes3 = []
+    total = len(attr_children)
+    for key, value in attr_children.iteritems():
+        i = value[1]
+        tmp = float(value[0])
+        if i == '0':
+            nodes0.append(tmp)
+        elif i == '1':
+            nodes1.append(tmp)
+        elif i == '2':
+            nodes2.append(tmp)
+        elif i == '3':
+            nodes3.append(tmp)
+    print len(nodes0)
+    print len(nodes1)
+    print len(nodes2)
+    print len(nodes3)
+    sum=float(0)
+    for i in nodes0:
+        sum += float(i)
+    print sum
+    sum = float(sum)/float(len(nodes0))
+    thresholds.append(sum)
+#    thresholds['0'] = sum
+    sum=float(0)
+    for i in nodes1:
+        sum += float(i)
+    print sum
+    sum = float(sum)/float(len(nodes1))
+    thresholds.append(sum)
+#    thresholds['1'] = sum
+    sum=float(0)
+    for i in nodes2:
+        sum += float(i)
+    print sum
+    sum = float(sum)/float(len(nodes2))
+    thresholds.append(sum)
+#    thresholds['2'] = sum
+    sum=float(0)
+    for i in nodes3:
+        sum += float(i)
+    print sum
+    sum = float(sum)/float(len(nodes3))
+    thresholds.append(sum)
+#    thresholds['3'] = sum
     return thresholds
-#    nodes1 = []
-#    nodes2 = []
-#    nodes3 = []
-#    nodes0 = []
-#    for key, value in attr_children.iteritems():
-#        i = value[1]
-#        if i == 0:
-#            nodes0.append(i)
-#        elif i == 1:
-#            nodes1.append(i)
-#        elif i == 2:
-#            nodes2.append(i)
-#        elif i == 3:
-#            nodes3.append(i)
-
+    
 def entropy(predictions, total):
     entropyVal = 0
     for count in predictions:
