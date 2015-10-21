@@ -66,5 +66,29 @@ def getThresholds(max_val):
 #        elif i == 3:
 #            nodes3.append(i)
     
+#conditional frequency
+def getThresholds(X_train_array,feature_num):
+#    sum=0
+    #find all examples the word belngs to 
+#    for i in range(len(X_train_array)):
+#        sum += X_train_array[i][feature_num]
+#    avg = sum/float(4)
+    p0,p1,p2,p3 = RocchioTraining(X_train_array, y_train)
+    
+def RocchioTraining(data, y_data):
+    prototype0,prototype1,prototype2,prototype3=np.zeros(len(data[0])),np.zeros(len(data[0])),np.zeros(len(data[0])),np.zeros(len(data[0]))
+    for index in range(len(data)):
+        d = np.array(data[index])
+        c = y_data[index]
+        if c == '0':
+            prototype0 = np.add(prototype0,d)
+        elif c == '1':
+            prototype1 = np.add(prototype1,d)
+        elif c == '2':
+            prototype2 = np.add(prototype2,d)
+        elif c == '3':
+            prototype3 = np.add(prototype3,d)
+    return prototype0,prototype1,prototype2,prototype3
+    
     
 main()
